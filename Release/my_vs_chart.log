@@ -1,0 +1,31 @@
+﻿  stdafx.cpp
+D:\2015\VC\atlmfc\include\afx.h(38): warning C4996: 'MBCS_Support_Deprecated_In_MFC': MBCS support in MFC is deprecated and may be removed in a future version of MFC.
+  D:\2015\VC\atlmfc\include\afx.h(33): note: 参见“MBCS_Support_Deprecated_In_MFC”的声明
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\winuser.rh(19): warning C4005: “RT_MANIFEST”: 宏重定义
+  C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\winuser.h(202): note: 参见“RT_MANIFEST”的前一个定义
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\winuser.rh(20): warning C4005: “CREATEPROCESS_MANIFEST_RESOURCE_ID”: 宏重定义
+  C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\winuser.h(203): note: 参见“CREATEPROCESS_MANIFEST_RESOURCE_ID”的前一个定义
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\winuser.rh(21): warning C4005: “ISOLATIONAWARE_MANIFEST_RESOURCE_ID”: 宏重定义
+  C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\winuser.h(204): note: 参见“ISOLATIONAWARE_MANIFEST_RESOURCE_ID”的前一个定义
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\winuser.rh(22): warning C4005: “ISOLATIONAWARE_NOSTATICIMPORT_MANIFEST_RESOURCE_ID”: 宏重定义
+  C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\winuser.h(205): note: 参见“ISOLATIONAWARE_NOSTATICIMPORT_MANIFEST_RESOURCE_ID”的前一个定义
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\winuser.rh(23): warning C4005: “MINIMUM_RESERVED_MANIFEST_RESOURCE_ID”: 宏重定义
+  C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\winuser.h(206): note: 参见“MINIMUM_RESERVED_MANIFEST_RESOURCE_ID”的前一个定义
+C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\winuser.rh(24): warning C4005: “MAXIMUM_RESERVED_MANIFEST_RESOURCE_ID”: 宏重定义
+  C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\include\winuser.h(207): note: 参见“MAXIMUM_RESERVED_MANIFEST_RESOURCE_ID”的前一个定义
+  EIMChatingWaiter.cpp
+  stdemdef.cpp
+em\stdemdef.cpp(113): warning C4244: “=”: 从“ULONGLONG”转换到“DWORD”，可能丢失数据
+  EM_RecvChat.cpp
+  EM_SendChat.cpp
+  MSGReceiver.cpp
+  my_vs_chart.cpp
+  my_vs_chartDlg.cpp
+  Send_chart.cpp
+  WaveIn.cpp
+  WaveOut.cpp
+  正在生成代码
+  All 383 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  已完成代码的生成
+  my_vs_chart.vcxproj -> D:\Qt_project\voice_chat\vs_chart\vc_chart\Release\my_vs_chart.exe
+  my_vs_chart.vcxproj -> D:\Qt_project\voice_chat\vs_chart\vc_chart\Release\my_vs_chart.pdb (Full PDB)
