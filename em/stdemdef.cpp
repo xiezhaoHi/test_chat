@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "..//stdafx.h"
 #include "winsock2.h"
 #include "stdemdef.h"
 #include "dos.h"

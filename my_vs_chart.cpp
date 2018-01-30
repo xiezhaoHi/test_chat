@@ -79,7 +79,13 @@ BOOL Cmy_vs_chartApp::InitInstance()
 
 	Cmy_vs_chartDlg dlg;
 	m_pMainWnd = &dlg;
+#ifdef HIDE_MAINWND
+	INT_PTR nResponse = dlg.Create(Cmy_vs_chartDlg::IDD);
+	dlg.ShowWindow(SW_HIDE);
+	dlg.RunModalLoop();
+#else
 	INT_PTR nResponse = dlg.DoModal();
+#endif
 	if (nResponse == IDOK)
 	{
 		// TODO: 在此放置处理何时用

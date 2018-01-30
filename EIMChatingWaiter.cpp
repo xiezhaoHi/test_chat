@@ -107,6 +107,7 @@ void CEIMChatingWaiter::Stop()
 	{
 	//	AfxMessageBox("ÓïÒôÍ£Ö¹ÁË");
 		m_wi->StopRecord();
+		//delete m_wi;
 		m_wi = NULL;
 	}
 }

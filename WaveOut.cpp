@@ -228,6 +228,19 @@ BOOL CWaveOut::ReadAndPlay(LPWAVEHDR hdr)
 	hdr->lpData = bbf;//buf;
 	hdr->dwBufferLength = slen;//len;
 
+
+
+	FILE* fp = fopen("outecord.pcm", "ab+");
+	if (fp == NULL)
+	{
+		printf("fopen error,%d", __LINE__);
+	}
+	fwrite((hdr)->lpData, (hdr)->dwBufferLength, 1, fp);
+	fclose(fp);
+
+
+	
+
 	if (waveOutPrepareHeader(m_hwo, hdr, sizeof(WAVEHDR)))
 	{
 		AfxMessageBox(CString("waveOutPrepareHeader failed."));

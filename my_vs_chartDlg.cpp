@@ -78,6 +78,7 @@ void Cmy_vs_chartDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(Cmy_vs_chartDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
+	ON_WM_TIMER()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON_SEND, &Cmy_vs_chartDlg::OnBnClickedOk)
 	ON_MESSAGE(WM_REQUESTVOICE, &Cmy_vs_chartDlg::EM_Voice_Income)
@@ -124,7 +125,7 @@ BOOL Cmy_vs_chartDlg::OnInitDialog()
 	// 启动 语音通话 服务
 	// 消息接收线程启动
 	m_MSGrecv.Run(this);
-	SetTimer(33, 1888, NULL);
+	
 
 	// 启动语音对话处理线程
 	// 启动录音接受线程
@@ -132,6 +133,8 @@ BOOL Cmy_vs_chartDlg::OnInitDialog()
 		AfxBeginThread(RUNTIME_CLASS(CEIMChatingWaiter), THREAD_PRIORITY_HIGHEST);
 
 
+
+	GetDlgItem(IDC_EDIT_IP)->SetWindowText("127.0.0.1");
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -228,6 +231,7 @@ void Cmy_vs_chartDlg::OnBnClickedOk()
 
 	//	EM_USERINFO ui(m_szUserPCName, m_szUserIP);
 	m_MSGrecv.SendMsg((LPSTR)(LPCTSTR)m_strUserIP, &data);
+	SetTimer(33, 1888, NULL);
 	// end 向对方发送语音对话的请求
 
 	// 添加信息到 Msg_Show
@@ -239,7 +243,7 @@ void Cmy_vs_chartDlg::OnBnClickedOk()
 afx_msg LRESULT Cmy_vs_chartDlg::EM_Voice_Income(WPARAM wParam, LPARAM lParam)
 {
 	char *szIP = (char*)lParam;
-
+	m_strUserIP = szIP;
 	//HTREEITEM hItem = _User_GetUserItem(szIP);
 	//if (NULL != hItem)
 	{
@@ -248,7 +252,7 @@ afx_msg LRESULT Cmy_vs_chartDlg::EM_Voice_Income(WPARAM wParam, LPARAM lParam)
 		// 一次只能一个语音对话
 		if (m_bVoiceChat)
 		{
-			Voice_DoNotAcceptChat(0);
+			Voice_DoNotAcceptChat(1);
 		}
 		else
 		{
@@ -271,7 +275,7 @@ void Cmy_vs_chartDlg::Voice_DoNotAcceptChat(int nValue)
 {
 	if (NULL == m_pSendChat)
 		return;
-
+	
 	// 删除语音请求对话框
 	CRect rtChat;
 	m_pSendChat->GetWindowRect(&rtChat);
@@ -288,12 +292,14 @@ void Cmy_vs_chartDlg::Voice_DoNotAcceptChat(int nValue)
 	// end 调整 Msg_Show 大小
 
 	// 添加信息到 Msg_Show
-	if (0 == nValue)
+	if (0 == nValue)  //手动拒绝 不重新发送请求
 	{
+		KillTimer(33);
 		Voice_AddText(_T("-- 对方不接受语音对话！"));
 	}
 	else
-	{
+	{ //时间到了 或重复 发送 请求 
+		
 		Voice_AddText(_T("-- 语音对话结束！"));
 	}
 }
@@ -305,7 +311,7 @@ void Cmy_vs_chartDlg::Voice_Income()
 	// 启动语音请求对话框
 	//m_pSendChat->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(0);
-
+	m_bVoiceChat = true;
 	m_pRecvChat = new EM_RecvChat;
 	if (!IsWindow(m_pRecvChat->GetSafeHwnd()))
 	{
@@ -366,7 +372,7 @@ void Cmy_vs_chartDlg::Voice_DestAcceptChat()
 {
 	if (NULL == m_pSendChat)
 		return;
-
+	KillTimer(33);
 	m_pSendChat->DestAcceptChat(m_strUserIP);
 
 	// 添加信息到 Msg_Show
@@ -384,7 +390,7 @@ afx_msg LRESULT   Cmy_vs_chartDlg::Voice_CancelRequest(WPARAM wParam, LPARAM lPa
 
 	if (NULL == m_pSendChat)
 		return -1;
-
+	KillTimer(33);
 	// 删除语音请求对话框
 	CRect rtChat;
 	m_pSendChat->GetWindowRect(&rtChat);
@@ -500,7 +506,7 @@ void Cmy_vs_chartDlg::Voice_CancelIncome(int nValue)
 {
 	if (NULL == m_pRecvChat)
 		return;
-
+	KillTimer(33);
 	// 删除语音接受对话框
 	CRect rtChat;
 	m_pRecvChat->GetWindowRect(&rtChat);
@@ -569,3 +575,23 @@ afx_msg LRESULT    Cmy_vs_chartDlg::Voice_SrcAcceptChat(WPARAM wParam, LPARAM lP
 	return 0;
 }
 // end 接受对方语音对话请求
+
+
+void Cmy_vs_chartDlg::OnTimer(UINT nIDEvent)
+{
+	// TODO: Add your message handler code here and/or call default
+
+	// TODO: Add your message handler code here and/or call default
+	if (33 == nIDEvent)
+	{
+		EM_DATA data;
+		data.msg = EM_REQUESTVOICE;
+		data.buf = NULL;
+		data.len = 0;
+
+		//	EM_USERINFO ui(m_szUserPCName, m_szUserIP);
+		m_MSGrecv.SendMsg((LPSTR)(LPCTSTR)m_strUserIP, &data);
+	}
+	
+	CDialog::OnTimer(nIDEvent);
+}

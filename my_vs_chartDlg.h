@@ -16,9 +16,9 @@ public:
 	Cmy_vs_chartDlg(CWnd* pParent = NULL);	// 标准构造函数
 	~Cmy_vs_chartDlg();
 // 对话框数据
-#ifdef AFX_DESIGN_TIME
+//#ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_MY_VS_CHART_DIALOG };
-#endif
+//#endif
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
@@ -53,7 +53,7 @@ protected:
 	afx_msg LRESULT  EM_Voice_CancelIncome(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT  EM_Voice_DoNotAcceptChat(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT  Voice_SrcAcceptChat(WPARAM wParam, LPARAM lParam);
-
+	afx_msg void OnTimer(UINT nIDEvent);
 	DECLARE_MESSAGE_MAP()
 public:
 	CListBox m_RichEditShow;
