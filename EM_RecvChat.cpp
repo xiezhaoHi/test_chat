@@ -74,7 +74,7 @@ void EM_RecvChat::OnAccept()
 	m_pwo = (CWaveOut*)AfxBeginThread(
 	RUNTIME_CLASS(CWaveOut),
 	THREAD_PRIORITY_HIGHEST, 0, CREATE_SUSPENDED);
-	m_pwo->SetIP(m_strIP);
+	m_pwo->SetIP(m_strIP); //设置发送端ip
 //	AfxMessageBox(m_strIP);
 	m_pwo->ResumeThread();
 
@@ -82,17 +82,17 @@ void EM_RecvChat::OnAccept()
 
 //	CDialog::OnOK();
 }
-
+//不接受 语音通话
 void EM_RecvChat::OnDeny() 
 {
 	// TODO: Add your control notification handler code here
-	if (! m_bChatting)
+	if (! m_bChatting) //未接受语音通话
 	{
 		CWnd *pWnd = GetParent();
 		pWnd->PostMessage(WM_EMDONOTCHAT, 0, sizeof(DWORD));
 		CDialog::OnOK();
 	}
-	else
+	else //接受语音通话后 取消通话
 	{
 		CWnd *pWnd = GetParent();
 		pWnd->PostMessage(WM_EMDONOTCHAT, 1, sizeof(DWORD));
@@ -101,7 +101,7 @@ void EM_RecvChat::OnDeny()
 			m_pwo->Stop();
 	}
 }
-
+static int gPos = 1000;
 void EM_RecvChat::OnTimer(UINT nIDEvent) 
 {
 	// TODO: Add your message handler code here and/or call default
@@ -110,9 +110,9 @@ void EM_RecvChat::OnTimer(UINT nIDEvent)
 	{
 		int nPos = m_process.StepIt();
 		CString str;
-		str.Format("将在 %d 秒后自动取消", int((100-nPos)/10)+1);
+		str.Format("将在 %d 秒后自动取消", int((gPos -nPos)/10)+1);
 		GetDlgItem(IDC_STATIC6)->SetWindowText(str);
-		if (100 == nPos)
+		if (gPos == nPos)
 		{
 			KillTimer(nIDEvent);
 			OnDeny();

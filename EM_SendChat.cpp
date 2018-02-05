@@ -50,7 +50,7 @@ END_MESSAGE_MAP()
 void EM_SendChat::OnChatCancel() 
 {
 	// TODO: Add your control notification handler code here
-	if (! m_bChatting)
+	if (! m_bChatting)//¹Ò¶Ï
 	{
 		CWnd *pWnd = GetParent();
 		pWnd->PostMessage(WM_EMCANCELREQUEST, 2);
@@ -58,11 +58,13 @@ void EM_SendChat::OnChatCancel()
 		KillTimer(33);
 		CDialog::OnCancel();
 	}
-	else
+	else //½áÊøÍ¨»°
 	{
 		if (m_pwo)
+		{
 			m_pwo->Stop();
-
+			m_pwo = nullptr;
+		}
 		CWnd *pWnd = GetParent();
 		pWnd->PostMessage(WM_EMCANCELREQUEST, 1);
 	}

@@ -41,9 +41,9 @@ BOOL CWaveOut::InitInstance()
 	if (! GetWavePCM())
 		return FALSE;
 
-/*	if (! OpenFile("record3.wav"))
-		return FALSE;
-*/
+// 	if (! OpenFile("record3.wav"))
+// 		return FALSE;
+
 	if (! Start())
 		return FALSE;
 
@@ -67,63 +67,63 @@ END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CWaveOut message handlers
-/*
-BOOL CWaveOut::OpenFile(LPSTR name)
-{
-	MMCKINFO	pinfo;
-	MMCKINFO	cinfo;
-	char *hData = NULL;
 
-	//打开WAV文件，返回一个m_hmmio句柄
-	m_hmmio = mmioOpen(name, NULL, MMIO_READ);
-	if (!m_hmmio)
-	{
-		AfxMessageBox("Wave file opening error.");
-		return FALSE;
-	}
+// BOOL CWaveOut::OpenFile(LPSTR name)
+// {
+// 	MMCKINFO	pinfo;
+// 	MMCKINFO	cinfo;
+// 	char *hData = NULL;
+// 
+// 	//打开WAV文件，返回一个m_hmmio句柄
+// 	m_hmmio = mmioOpen(name, NULL, MMIO_READ);
+// 	if (!m_hmmio)
+// 	{
+// 		AfxMessageBox("Wave file opening error.");
+// 		return FALSE;
+// 	}
+// 
+// 	//查找父块"wave";
+// 	pinfo.fccType=mmioFOURCC('W','A','V','E');
+// 
+// 	if ( mmioDescend(m_hmmio, &pinfo, NULL, MMIO_FINDRIFF) )
+// 	{
+// 		AfxMessageBox("mmioFOURCC failed.");
+// 		return FALSE;
+// 	}
+// 
+// 	//查找子块"fmt"  parent"riff";
+// 	cinfo.ckid=mmioFOURCC('f','m','t',' ');
+// 	if(mmioDescend(m_hmmio,&cinfo,&pinfo,MMIO_FINDCHUNK))
+// 	{
+// 		AfxMessageBox("mmioDescend failed.");
+// 		return FALSE;
+// 	}
+// 
+// 	mmioRead(m_hmmio,(LPSTR)&m_pcm,sizeof(PCMWAVEFORMAT));//cinfo.cksize);
+// 
+// 	if (m_pcm.wf.wFormatTag != WAVE_FORMAT_PCM)
+// 	{
+// 		AfxMessageBox("mmioDescend failed.");
+// 		return FALSE;
+// 	}
+// 
+// 	//跳入块"FMT"
+// 	mmioAscend(m_hmmio,&cinfo,0);
+// 
+// 	//查找数据块
+// 	cinfo.ckid=mmioFOURCC('d','a','t','a');
+// 
+// 	if (mmioDescend(m_hmmio,&cinfo,&pinfo,MMIO_FINDCHUNK))
+// 	{
+// 		AfxMessageBox("mmioDescend failed.");
+// 		return FALSE;
+// 	}
+// 
+// 	m_dwSize =cinfo.cksize;
+// 
+// 	return TRUE;
+// }
 
-	//查找父块"wave";
-	pinfo.fccType=mmioFOURCC('W','A','V','E');
-
-	if ( mmioDescend(m_hmmio, &pinfo, NULL, MMIO_FINDRIFF) )
-	{
-		AfxMessageBox("mmioFOURCC failed.");
-		return FALSE;
-	}
-
-	//查找子块"fmt"  parent"riff";
-	cinfo.ckid=mmioFOURCC('f','m','t',' ');
-	if(mmioDescend(m_hmmio,&cinfo,&pinfo,MMIO_FINDCHUNK))
-	{
-		AfxMessageBox("mmioDescend failed.");
-		return FALSE;
-	}
-
-	mmioRead(m_hmmio,(LPSTR)&m_pcm,sizeof(PCMWAVEFORMAT));//cinfo.cksize);
-
-	if (m_pcm.wf.wFormatTag != WAVE_FORMAT_PCM)
-	{
-		AfxMessageBox("mmioDescend failed.");
-		return FALSE;
-	}
-
-	//跳入块"FMT"
-	mmioAscend(m_hmmio,&cinfo,0);
-
-	//查找数据块
-	cinfo.ckid=mmioFOURCC('d','a','t','a');
-
-	if (mmioDescend(m_hmmio,&cinfo,&pinfo,MMIO_FINDCHUNK))
-	{
-		AfxMessageBox("mmioDescend failed.");
-		return FALSE;
-	}
-
-	m_dwSize =cinfo.cksize;
-
-	return TRUE;
-}
-*/
 BOOL CWaveOut::Start()
 {
 	if (waveOutOpen(&m_hwo, WAVE_MAPPER,
@@ -167,53 +167,85 @@ void CWaveOut::On_MM_Open(UINT wParam, LONG lParam)
 void CWaveOut::On_MM_Close(UINT wParam, LONG lParam)
 {
 //	AfxMessageBox("On_MM_Close");
-//	mmioClose(m_hmmio, 0);
+	mmioClose(m_hmmio, 0);
 	closesocket(m_sock);
 	Sleep(500); 
-
+	//AfxEndThread(1);
 }
-/*
-BOOL CWaveOut::ReadAndPlay()
+
+// BOOL CWaveOut::ReadAndPlay()
+// {
+// 	char *bbf = new char[BUF_LEN];
+// 	DWORD slen = recv(m_sock, bbf, BUF_LEN, 0);
+// 	if (slen == SOCKET_ERROR)
+// 	{
+// 		AfxMessageBox("Teriable error.");
+// 		return FALSE;
+// 	}
+// 	else
+// 	{
+// 		AfxMessageBox(bbf);
+// 	}
+// 	Sleep(10);
+// 	LPWAVEHDR hdr = new WAVEHDR;
+// 	char *buf = new char[BUF_LEN];
+// 
+// 	ZeroMemory(hdr, sizeof(WAVEHDR));
+// 
+// 	DWORD total = 0;
+// 	DWORD len = 0;
+// 	len = mmioRead(m_hmmio, buf, BUF_LEN);
+// 	m_curSize += len;
+// 
+// 	hdr->lpData = bbf;//buf;
+// 	hdr->dwBufferLength = slen;//len;
+// 
+// 	if (waveOutPrepareHeader(m_hwo, hdr, sizeof(WAVEHDR)))
+// 	{
+// 		AfxMessageBox("waveOutPrepareHeader failed.");
+// 		return FALSE;
+// 	}
+// 	if (waveOutWrite(m_hwo, hdr, sizeof(WAVEHDR)))
+// 	{
+// 		AfxMessageBox("waveOutWrite failed.");
+// 		return FALSE;
+// 	}
+// 
+// 	return TRUE;
+// }
+void RaiseVolume(char* buf, UINT32 size, UINT32 uRepeat, double vol)//buf为需要调节音量的音频数据块首地址指针，size为长度，uRepeat为重复次数，通常设为1，vol为增益倍数,可以小于1  
 {
-	char *bbf = new char[BUF_LEN];
-	DWORD slen = recv(m_sock, bbf, BUF_LEN, 0);
-	if (slen == SOCKET_ERROR)
+	if (!size)
 	{
-		AfxMessageBox("Teriable error.");
-		return FALSE;
+		return;
 	}
-/*	else
+	for (int i = 0; i < size;)
 	{
-		AfxMessageBox(bbf);
-	}*/
-//	Sleep(10);
-/*	LPWAVEHDR hdr = new WAVEHDR;
-	char *buf = new char[BUF_LEN];*/
+		signed long minData = -0x8000; //如果是8bit编码这里变成-0x80  
+		signed long maxData = 0x7FFF;//如果是8bit编码这里变成0xFF  
 
-//	ZeroMemory(hdr, sizeof(WAVEHDR));
+		signed short wData = buf[i + 1];
+		wData = MAKEWORD(buf[i], buf[i + 1]);
+		signed long dwData = wData;
 
-/*	DWORD total = 0;
-	DWORD len = 0;*/
-//	len = mmioRead(m_hmmio, buf, BUF_LEN);
-/*	m_curSize += len;
-
-	hdr->lpData = bbf;//buf;
-	hdr->dwBufferLength = slen;//len;
-
-	if (waveOutPrepareHeader(m_hwo, hdr, sizeof(WAVEHDR)))
-	{
-		AfxMessageBox("waveOutPrepareHeader failed.");
-		return FALSE;
+		for (int j = 0; j < uRepeat; j++)
+		{
+			dwData = dwData * vol;
+			if (dwData < -0x8000)
+			{
+				dwData = -0x8000;
+			}
+			else if (dwData > 0x7FFF)
+			{
+				dwData = 0x7FFF;
+			}
+		}
+		wData = LOWORD(dwData);
+		buf[i] = LOBYTE(wData);
+		buf[i + 1] = HIBYTE(wData);
+		i += 2;
 	}
-	if (waveOutWrite(m_hwo, hdr, sizeof(WAVEHDR)))
-	{
-		AfxMessageBox("waveOutWrite failed.");
-		return FALSE;
-	}
-
-	return TRUE;*/
-//}
-
+}
 BOOL CWaveOut::ReadAndPlay(LPWAVEHDR hdr)
 {
 	char *bbf = new char[BUF_LEN];
@@ -225,18 +257,20 @@ BOOL CWaveOut::ReadAndPlay(LPWAVEHDR hdr)
 		return FALSE;
 	}
 
+	//RaiseVolume(bbf, slen,1,2);//设置音量 
+
 	hdr->lpData = bbf;//buf;
 	hdr->dwBufferLength = slen;//len;
 
 
-
-	FILE* fp = fopen("outecord.pcm", "ab+");
-	if (fp == NULL)
-	{
-		printf("fopen error,%d", __LINE__);
-	}
-	fwrite((hdr)->lpData, (hdr)->dwBufferLength, 1, fp);
-	fclose(fp);
+// 
+// 	FILE* fp = fopen("outecord.pcm", "ab+");
+// 	if (fp == NULL)
+// 	{
+// 		printf("fopen error,%d", __LINE__);
+// 	}
+// 	fwrite((hdr)->lpData, (hdr)->dwBufferLength, 1, fp);
+// 	fclose(fp);
 
 
 	

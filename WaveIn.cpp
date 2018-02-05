@@ -94,6 +94,7 @@ void NoiseSuppression32(char *pInBuffer, char * pOutBuffer,int len, int nSample,
 
 CWaveIn::CWaveIn()
 {
+	m_oneExe = TRUE;
 }
 
 CWaveIn::CWaveIn(SOCKET sock)
@@ -166,25 +167,24 @@ void CWaveIn::On_WIM_DATA(UINT wParam, LONG lParam)
 	//******************************************************
 	if (m_sock)
 	{
-
-
 		//NoiseSuppression32(ccpwh->lpData, buff, ccpwh->dwBytesRecorded, 32000, 1);
 
 		//将音频写入到文件中
-					FILE* fp = fopen("inecord.pcm", "ab+");
-				if (fp == NULL)
-				{
-					printf("fopen error,%d", __LINE__);
-				}
-				fwrite(((PWAVEHDR)lParam)->lpData, ((PWAVEHDR)lParam)->dwBytesRecorded, 1, fp);
-				fclose(fp);
-		
-// 				FILE* fp_end = fopen("inecord_end.pcm", "ab+");
+// 				FILE* fp = fopen("inecord.pcm", "ab+");
+// 				if (fp == NULL)
+// 				{
+// 					printf("fopen error,%d", __LINE__);
+// 				}
+// 				fwrite(((PWAVEHDR)lParam)->lpData, ((PWAVEHDR)lParam)->dwBytesRecorded, 1, fp);
+// 				fclose(fp);
+ 		
+// 				FILE* fp_end = fopen("test.pcm", "r");
+// 				
 // 				if (fp_end == NULL)
 // 				{
 // 					printf("fopen error,%d", __LINE__);
 // 				}
-// 				fwrite(buff, ((PWAVEHDR)lParam)->dwBytesRecorded, 1, fp_end);
+// 				fread(buff, ((PWAVEHDR)lParam)->dwBytesRecorded, 1, fp_end);
 // 				fclose(fp_end);
 
 		DWORD len = send(m_sock, ccpwh->lpData, ccpwh->dwBytesRecorded, 0);
@@ -215,15 +215,20 @@ void CWaveIn::On_WIM_DATA(UINT wParam, LONG lParam)
 void CWaveIn::On_WIM_CLOSE(UINT wParam, LONG lParam)
 {
 	//******************************************************
+
 	if (m_sock)
 		closesocket(m_sock);
 	//******************************************************
 
 	if (m_buf1)
-	{delete [] m_buf1; m_buf1 = NULL;}
+	{
+		delete[] m_buf1; m_buf1 = NULL;
+	}
 
 	if (m_buf2)
-	{delete [] m_buf2;m_buf2 = NULL;}
+	{
+		delete[] m_buf2; m_buf2 = NULL;
+	}
 }
 
 BOOL CWaveIn::StopRecord()
@@ -339,6 +344,7 @@ BOOL CWaveIn::StopRecord()
 		return FALSE;
 	}
 
+
 	return TRUE;
 }
 
@@ -350,8 +356,8 @@ BOOL CWaveIn::Start(SOCKET s)
 	CString err = "error";
 /* Initialize the WAVEFORMATEX for 16-bit, 44KHz, stereo */
 	m_wfx.wFormatTag = WAVE_FORMAT_PCM;
-	m_wfx.nChannels = 1;
-	m_wfx.nSamplesPerSec = 32*1000;
+	m_wfx.nChannels = 2;
+	m_wfx.nSamplesPerSec = 44.1*1000;
 	m_wfx.wBitsPerSample = 16;
 	m_wfx.nBlockAlign = m_wfx.nChannels * (m_wfx.wBitsPerSample/8);
 	m_wfx.nAvgBytesPerSec = m_wfx.nSamplesPerSec * m_wfx.nBlockAlign;
@@ -436,7 +442,6 @@ BOOL CWaveIn::Start(SOCKET s)
 
 void CWaveIn::OnWaveInEnd(WPARAM wParam, LPARAM lParam)
 {
-//	StopRecord();
-//	AfxEndThread(0);
-	ExitThread(1);
+	StopRecord();
+	AfxEndThread(0);
 }

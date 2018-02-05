@@ -19,10 +19,12 @@ IMPLEMENT_DYNCREATE(CEIMChatingWaiter, CWinThread)
 
 CEIMChatingWaiter::CEIMChatingWaiter()
 {
+	m_wi = nullptr;
 }
 
 CEIMChatingWaiter::~CEIMChatingWaiter()
 {
+
 }
 
 BOOL CEIMChatingWaiter::InitInstance()
@@ -36,6 +38,7 @@ BOOL CEIMChatingWaiter::InitInstance()
 int CEIMChatingWaiter::ExitInstance()
 {
 	// TODO:  perform any per-thread cleanup here
+	
 	return CWinThread::ExitInstance();
 }
 
@@ -96,6 +99,11 @@ BOOL CEIMChatingWaiter::Listen()
 		}
 
 		m_wi = new CWaveIn(Accept);
+		// 启动收听线程
+// 		m_wi = (CWaveIn*)AfxBeginThread(
+// 			RUNTIME_CLASS(CWaveIn),
+// 			THREAD_PRIORITY_HIGHEST, 0, CREATE_SUSPENDED);
+
 	}
 
 	return TRUE;
@@ -106,7 +114,7 @@ void CEIMChatingWaiter::Stop()
 	if (m_wi)
 	{
 	//	AfxMessageBox("语音停止了");
-		m_wi->StopRecord();
+		//m_wi->StopRecord();
 		//delete m_wi;
 		m_wi = NULL;
 	}

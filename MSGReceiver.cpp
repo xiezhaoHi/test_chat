@@ -2,6 +2,7 @@
 #include "my_vs_chartDlg.h"
 #include "MSGReceiver.h"
 
+#define UDP_MSG  //使用UDP 通讯协议
 BOOL EM_MSGReceiver::m_bMessageReceiving = TRUE;
 
 EM_MSGReceiver::EM_MSGReceiver()
@@ -10,7 +11,7 @@ EM_MSGReceiver::EM_MSGReceiver()
 
 	m_hThread = NULL;
 
-	
+#ifdef UDP_MSG
 		m_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 		if (INVALID_SOCKET == m_sock)
 		{
@@ -18,7 +19,15 @@ EM_MSGReceiver::EM_MSGReceiver()
 
 			return;
 		}
+#else
 
+	m_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (INVALID_SOCKET == m_sock)
+	{
+		AfxMessageBox("socket creating error.");
+		return ;
+	}
+#endif
 	
 	
 	
@@ -41,6 +50,7 @@ DWORD WINAPI EM_MSGReceiver::UDPMsgProc(LPVOID lParam)
 		AfxMessageBox("获取主窗口句柄失败!");
 		return -1;
 	}
+#ifdef UDP_MSG
 	SOCKET s = socket(AF_INET, SOCK_DGRAM, 0);
 
 	if (s == INVALID_SOCKET)
@@ -160,6 +170,150 @@ DWORD WINAPI EM_MSGReceiver::UDPMsgProc(LPVOID lParam)
 			}
 		}
 	}
+#else
+	SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (INVALID_SOCKET == sock)
+	{
+		AfxMessageBox("socket creating error.");
+		return;
+	}
+
+	SOCKADDR_IN sin;
+	sin.sin_addr.s_addr = htonl(INADDR_ANY);
+	sin.sin_family = AF_INET;
+	sin.sin_port = htons(MSG_RECV_PORT);
+
+	DWORD ret = bind(sock, (PSOCKADDR)&sin, sizeof(SOCKADDR_IN));
+	if (SOCKET_ERROR == ret)
+	{
+		CString str;
+		str.Format("bind failed. %d---", WSAGetLastError());
+		AfxMessageBox(str);
+		return FALSE;
+	}
+
+	ret = listen(sock, 5);
+	if (SOCKET_ERROR == ret)
+	{
+		AfxMessageBox("ln 79 listen failed.\n");
+		return FALSE;
+	}
+
+	SOCKET Accept;
+	SOCKADDR_IN client;
+	int sinLen = sizeof(client);
+	SOCKADDR_IN client;
+	int sinLen;
+	int ret;
+	char buf[8192];
+	Accept = accept(sock, (PSOCKADDR)&client, &sinLen);
+	while (m_bMessageReceiving)
+	{
+		sinLen = sizeof(SOCKADDR_IN);
+		if ((ret = recv(sock, buf, 8192, 0)) == SOCKET_ERROR)
+		{
+			::EM_Error(_T("recvfrom error occured."), WSAGetLastError());
+			break;
+		}
+		else
+		{
+			// 看不顺眼啊
+			EM_DATA data(buf, sinLen);
+
+			char ip[128];
+			strcpy(ip, inet_ntoa(client.sin_addr));
+
+			// GetHostName
+			//	char hostName[256];
+			//	EM_GetHostName(ip, hostName);
+
+			//	EM_USERINFO *emUI = new EM_USERINFO(hostName, ip, NULL);
+			// 不同消息执行不同处理
+			switch (data.msg)
+			{
+			case EM_TEXT:				// 用户发送文本消息过来
+			{
+				char *pBuf = new char[data.len];
+				memcpy(pBuf, data.buf, data.len);
+				pDlg->SendMessage(WM_NEW_MSG,
+					(WPARAM)pBuf, (LPARAM)ip);
+				break;
+			}
+			case EM_FILE:				// 用户发送文件过来
+			{
+				LPEM_FILEINFO pInfo = new EM_FILEINFO;
+				memcpy(pInfo, data.buf, sizeof(EM_FILEINFO));
+
+				pDlg->PostMessage(WM_NEW_FILE,
+					(WPARAM)pInfo, (LPARAM)ip);
+				break;
+			}
+			case EM_REFUSEFILE:			// 拒绝接收
+			{
+				LPEM_FILEINFO pInfo = new EM_FILEINFO;
+				memcpy(pInfo, data.buf, sizeof(EM_FILEINFO));
+
+				pDlg->PostMessage(WM_REFUSEFILE,
+					(WPARAM)pInfo, (LPARAM)ip);
+				break;
+			}
+			case EM_ACCEPTFILE:			// 同意接收文件
+			{
+				LPEM_FILEINFO pInfo = new EM_FILEINFO;
+				memcpy(pInfo, data.buf, sizeof(EM_FILEINFO));
+
+				pDlg->PostMessage(WM_DESTACCEPTFILE,
+					(WPARAM)pInfo, (LPARAM)ip);
+				break;
+			}
+			/*	case EM_FILESENDCOMPLETED:	// 发送完毕
+			{
+			LPEM_FILEINFO pInfo = new EM_FILEINFO;
+			memcpy(pInfo, data.buf, sizeof(EM_FILEINFO));
+
+			pDlg->PostMessage(WM_FILESENDCOMPLETED,
+			(WPARAM)pInfo, (LPARAM)emUI);
+			break;
+			}*/
+			case EM_REQUESTVOICE:
+			{
+				pDlg->PostMessage(WM_REQUESTVOICE, NULL, (LPARAM)ip);
+				break;
+			}
+			case EM_CANCELREQUESTVOICE:
+			{
+				pDlg->PostMessage(WM_CANCELREQUESTVOICE, data.len, (LPARAM)ip);
+				break;
+			}
+			case EM_DONOTCHAT:
+			{
+				pDlg->PostMessage(WM_DONOTACCEPTCHAT, data.len, (LPARAM)ip);
+				break;
+			}
+			case EM_ACCEPTCHAT:
+			{
+				pDlg->PostMessage(WM_ACCEPTCHAT, NULL, (LPARAM)ip);
+				break;
+			}
+			case EM_SHAKEWINDOW:
+			{
+				pDlg->PostMessage(WM_SHAKEWINDOW, NULL, (LPARAM)ip);
+				break;
+			}
+			}
+		}
+	}
+	// 	while (TRUE)
+	// 	{
+	// 		Accept = accept(m_listen, (PSOCKADDR)&client, &sinLen);
+	// 		char buf[256];
+	// 		sprintf(buf, "%s accepted port:%d.\r\n", inet_ntoa(client.sin_addr), Accept);
+	// 		if (INVALID_SOCKET == Accept)
+	// 		{
+	// 			AfxMessageBox("CEIMChatingWaiter::Listen [accept] failed.");
+	// 			break;
+	// 		}
+	#endif 
 	return 0;//没素质
 }
 

@@ -56,6 +56,7 @@ Cmy_vs_chartDlg::Cmy_vs_chartDlg(CWnd* pParent /*=NULL*/)
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	m_pSendChat = nullptr;
 	m_bVoiceChat = false;
+	m_cw = nullptr;
 }
 
 Cmy_vs_chartDlg::~Cmy_vs_chartDlg()
@@ -134,6 +135,7 @@ BOOL Cmy_vs_chartDlg::OnInitDialog()
 
 
 
+
 	GetDlgItem(IDC_EDIT_IP)->SetWindowText("127.0.0.1");
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -192,6 +194,9 @@ HCURSOR Cmy_vs_chartDlg::OnQueryDragIcon()
 void Cmy_vs_chartDlg::OnBnClickedOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
+
+	
+
 	
 	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow(0);
 	m_pSendChat = new EM_SendChat;
@@ -231,7 +236,7 @@ void Cmy_vs_chartDlg::OnBnClickedOk()
 
 	//	EM_USERINFO ui(m_szUserPCName, m_szUserIP);
 	m_MSGrecv.SendMsg((LPSTR)(LPCTSTR)m_strUserIP, &data);
-	SetTimer(33, 1888, NULL);
+	//SetTimer(33, 1888, NULL);
 	// end 向对方发送语音对话的请求
 
 	// 添加信息到 Msg_Show
@@ -279,6 +284,10 @@ void Cmy_vs_chartDlg::Voice_DoNotAcceptChat(int nValue)
 	// 删除语音请求对话框
 	CRect rtChat;
 	m_pSendChat->GetWindowRect(&rtChat);
+	if (m_pSendChat->m_pwo)
+	{
+		m_pSendChat->m_pwo->Stop();
+	}
 	delete m_pSendChat;
 	m_pSendChat = NULL;
 	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow();
@@ -297,11 +306,15 @@ void Cmy_vs_chartDlg::Voice_DoNotAcceptChat(int nValue)
 		KillTimer(33);
 		Voice_AddText(_T("-- 对方不接受语音对话！"));
 	}
-	else
-	{ //时间到了 或重复 发送 请求 
-		
+	else //1 表示 结束 正在进行的通话
+	{ 
 		Voice_AddText(_T("-- 语音对话结束！"));
+		if (m_cw)
+		{
+			m_cw->Stop();
+		}
 	}
+	m_bVoiceChat = FALSE;
 }
 // end 对方拒绝接受对话请求
 
@@ -357,7 +370,7 @@ void  Cmy_vs_chartDlg::Voice_AddText(CString const& strText)
 // 对方接受语音对话请求
 afx_msg LRESULT  Cmy_vs_chartDlg::EM_Voice_DestAcceptChat(WPARAM wParam, LPARAM lParam)
 {
-
+	m_strUserIP = (LPCTSTR)lParam;
 		Voice_DestAcceptChat();
 
 		// 为什么不直接 m_Chatdlg[index]->ShowWindow(SW_NORMAL);
@@ -510,6 +523,10 @@ void Cmy_vs_chartDlg::Voice_CancelIncome(int nValue)
 	// 删除语音接受对话框
 	CRect rtChat;
 	m_pRecvChat->GetWindowRect(&rtChat);
+	if (m_pRecvChat->m_pwo)
+	{
+		m_pRecvChat->m_pwo->Stop(); //结束 接收端的  语音接收和播放
+	}
 	delete m_pRecvChat;
 	m_pRecvChat = NULL;
 	GetDlgItem(IDC_BUTTON_SEND)->EnableWindow();
@@ -531,7 +548,12 @@ void Cmy_vs_chartDlg::Voice_CancelIncome(int nValue)
 	else
 	{
 		Voice_AddText(_T("-- 语音对话结束！"));
+		if (m_cw)
+		{
+			m_cw->Stop(); //结束 接收端的  录音
+		}
 	}
+	m_bVoiceChat = FALSE;
 }
 // end 被请求语音对话
 
@@ -542,7 +564,7 @@ afx_msg LRESULT    Cmy_vs_chartDlg::EM_Voice_CancelIncome(WPARAM wParam, LPARAM 
 	char *szIP = (char*)lParam;
 
 	Voice_CancelIncome(nValue);
-	return -1;
+	return 0;
 }
 
 //不接受请求

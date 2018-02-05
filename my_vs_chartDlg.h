@@ -24,7 +24,7 @@ public:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
 
 
-
+	CEIMChatingWaiter* m_cw;
 
 // 实现
 protected:
@@ -36,7 +36,7 @@ protected:
 	//
 	// 消息收发
 	EM_MSGReceiver m_MSGrecv;
-	CEIMChatingWaiter* m_cw;
+	
 
 
 	// 生成的消息映射函数

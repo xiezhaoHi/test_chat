@@ -12,12 +12,13 @@
 // Â¼ÒôÄ£¿é
 class CWaveIn : public CWinThread
 {
-//	DECLARE_DYNCREATE(CWaveIn)
+	//DECLARE_DYNCREATE(CWaveIn)
 public:
 	CWaveIn();           // protected constructor used by dynamic creation
 
 // Attributes
 public:
+	BOOL  m_oneExe;
 	DWORD m_dwThread;
 	CWaveIn(SOCKET sock);
 	SOCKET m_sock;

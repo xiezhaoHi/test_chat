@@ -17,11 +17,11 @@ class CEIMChatingWaiter : public CWinThread
 	DECLARE_DYNCREATE(CEIMChatingWaiter)
 protected:
 	CEIMChatingWaiter();           // protected constructor used by dynamic creation
-
+	
 // Attributes
 public:
 	CWaveIn *m_wi;
-
+	virtual ~CEIMChatingWaiter();
 // Operations
 public:
 	void Stop();
@@ -38,7 +38,7 @@ public:
 
 // Implementation
 protected:
-	virtual ~CEIMChatingWaiter();
+
 
 	// Generated message map functions
 	//{{AFX_MSG(CEIMChatingWaiter)

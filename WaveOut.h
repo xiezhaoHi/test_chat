@@ -25,7 +25,7 @@ public:
 public:
 	BOOL Stop();
 	BOOL SetIP(LPCTSTR ip);
-//	BOOL ReadAndPlay();
+	//BOOL ReadAndPlay();
 	BOOL ReadAndPlay(LPWAVEHDR hdr);
 	DWORD m_dwTID;
 	HWAVEOUT m_hwo;
@@ -38,7 +38,7 @@ public:
 	DWORD m_curSize;
 	HMMIO m_hmmio;
 	BOOL m_bChatting;
-//	BOOL OpenFile(LPSTR name);
+	//BOOL OpenFile(LPSTR name);
 	BOOL Connect(LPSTR ip);
 	BOOL SendRequest();
 	BOOL GetWavePCM();
